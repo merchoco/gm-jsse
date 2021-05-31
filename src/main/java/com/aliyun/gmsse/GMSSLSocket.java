@@ -77,6 +77,7 @@ public class GMSSLSocket extends SSLSocket {
         initialize();
     }
 
+
     private void initialize() {
         session = new GMSSLSession(supportedSuites, supportedPtrotocols);
         session.protocol = ProtocolVersion.NTLS_1_1;
@@ -476,5 +477,21 @@ public class GMSSLSocket extends SSLSocket {
     @Override
     public InputStream getInputStream() throws IOException {
         return new AppDataInputStream(recordStream);
+    }
+
+    public void doneConnect() {
+      /*  if (this.self == this) {
+            this.socketIn = super.getInputStream();
+            this.socketOut = super.getOutputStream();
+        } else {
+            this.socketIn = this.self.getInputStream();
+            this.socketOut = this.self.getOutputStream();
+        }*/
+
+        try {
+            this.startHandshake();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

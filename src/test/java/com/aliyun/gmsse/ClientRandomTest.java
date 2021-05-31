@@ -3,6 +3,8 @@ package com.aliyun.gmsse;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.security.SecureRandom;
+
 public class ClientRandomTest {
 
     @Test
@@ -11,6 +13,16 @@ public class ClientRandomTest {
         String str = clientRandom.toString();
         Assert.assertTrue(str.contains("gmt_unix_time = 1;"));
         Assert.assertTrue(str.contains("random_bytes = 01"));
+    }
+
+    @Test
+    public void randomTest() throws Exception{
+        /**
+         * 获取一个ClientRandom
+         */
+        ClientRandom clientRandom = new ClientRandom(new SecureRandom());
+        Assert.assertEquals(32,clientRandom.getBytes().length);
+        clientRandom.print(System.out);
     }
 
     @Test

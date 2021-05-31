@@ -1,0 +1,81 @@
+package org.bc.asn1.x509;
+
+import org.bc.asn1.ASN1Choice;
+import org.bc.asn1.ASN1Object;
+import org.bc.asn1.ASN1Primitive;
+import org.bc.asn1.ASN1String;
+import org.bc.asn1.ASN1TaggedObject;
+import org.bc.asn1.DERBMPString;
+import org.bc.asn1.DERIA5String;
+import org.bc.asn1.DERUTF8String;
+import org.bc.asn1.DERVisibleString;
+
+public class DisplayText extends ASN1Object implements ASN1Choice {
+   public static final int CONTENT_TYPE_IA5STRING = 0;
+   public static final int CONTENT_TYPE_BMPSTRING = 1;
+   public static final int CONTENT_TYPE_UTF8STRING = 2;
+   public static final int CONTENT_TYPE_VISIBLESTRING = 3;
+   public static final int DISPLAY_TEXT_MAXIMUM_SIZE = 200;
+   int contentType;
+   ASN1String contents;
+
+   public DisplayText(int var1, String var2) {
+      if (var2.length() > 200) {
+         var2 = var2.substring(0, 200);
+      }
+
+      this.contentType = var1;
+      switch(var1) {
+      case 0:
+         this.contents = new DERIA5String(var2);
+         break;
+      case 1:
+         this.contents = new DERBMPString(var2);
+         break;
+      case 2:
+         this.contents = new DERUTF8String(var2);
+         break;
+      case 3:
+         this.contents = new DERVisibleString(var2);
+         break;
+      default:
+         this.contents = new DERUTF8String(var2);
+      }
+
+   }
+
+   public DisplayText(String var1) {
+      if (var1.length() > 200) {
+         var1 = var1.substring(0, 200);
+      }
+
+      this.contentType = 2;
+      this.contents = new DERUTF8String(var1);
+   }
+
+   private DisplayText(ASN1String var1) {
+      this.contents = var1;
+   }
+
+   public static DisplayText getInstance(Object var0) {
+      if (var0 instanceof ASN1String) {
+         return new DisplayText((ASN1String)var0);
+      } else if (var0 != null && !(var0 instanceof DisplayText)) {
+         throw new IllegalArgumentException("illegal object in getInstance: " + var0.getClass().getName());
+      } else {
+         return (DisplayText)var0;
+      }
+   }
+
+   public static DisplayText getInstance(ASN1TaggedObject var0, boolean var1) {
+      return getInstance(var0.getObject());
+   }
+
+   public ASN1Primitive toASN1Primitive() {
+      return (ASN1Primitive)this.contents;
+   }
+
+   public String getString() {
+      return this.contents.getString();
+   }
+}

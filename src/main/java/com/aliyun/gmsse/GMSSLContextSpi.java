@@ -1,11 +1,17 @@
 package com.aliyun.gmsse;
 
+import sun.security.ssl.SSLContextImpl;
+import sun.security.ssl.SSLServerSocketFactoryImpl;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLEngine;
@@ -23,6 +29,8 @@ public class GMSSLContextSpi extends SSLContextSpi {
     private X509TrustManager trustManager;
     private SecureRandom random;
     private SSLSessionContext clientSessionContext;
+    private boolean isInitialized;
+
 
     public GMSSLContextSpi() {
         clientSessionContext = new SessionContext();
@@ -48,14 +56,21 @@ public class GMSSLContextSpi extends SSLContextSpi {
         return null;
     }
 
-    @Override
-    protected SSLServerSocketFactory engineGetServerSocketFactory() {
-        return null;
-    }
+
 
     @Override
     protected SSLSocketFactory engineGetSocketFactory() {
         return new GMSSLSocketFactory(keyManager, trustManager, random, clientSessionContext);
+    }
+
+    @Override
+    protected SSLServerSocketFactory engineGetServerSocketFactory() {
+
+        if (!this.isInitialized) {
+            throw new IllegalStateException("SSLContext is not initialized");
+        } else{
+          return  new  GMSSLServerSocketFactory(this);
+        }
     }
 
     @Override
@@ -90,6 +105,7 @@ public class GMSSLContextSpi extends SSLContextSpi {
         } else {
             this.random = new SecureRandom();
         }
+        isInitialized =true;
     }
 
     private X509TrustManager defaultTrustManager() throws KeyManagementException {

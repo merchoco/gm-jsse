@@ -2,8 +2,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.aliyun</groupId>
     <artifactId>gmsse</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <version>1.1.0</version>
+    <modules>
+        <module>examples</module>
+    </modules>
     <name>GMSSE</name>
 
     <url>https://github.com/aliyun/gm-jsse</url>
@@ -65,6 +68,16 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
+         <dependency>
+                <groupId>com.gm</groupId>
+                <artifactId>jce</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+  <!--         <dependency>
+                <groupId>com.gm</groupId>
+                <artifactId>gmjsse</artifactId>
+            <version>1.0.0</version>
+        </dependency>-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
