@@ -1,14 +1,6 @@
 package com.aliyun.gmsse.handshake;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -55,6 +47,11 @@ public class Certificate extends Handshake.Body {
         out.writeTo(packet);
 
         return packet.toByteArray();
+    }
+
+    @Override
+    public void print(PrintStream out) {
+
     }
 
     public static Certificate read(InputStream input) throws IOException {

@@ -1,10 +1,6 @@
 package com.aliyun.gmsse.handshake;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +32,11 @@ public class ServerKeyExchange extends Handshake.Body {
         os.write(length & 0xFF);
         os.write(signature);
         return os.toByteArray();
+    }
+
+    @Override
+    public void print(PrintStream out) {
+
     }
 
     public static ServerKeyExchange read(InputStream input) throws IOException {

@@ -1,10 +1,6 @@
 package com.aliyun.gmsse.handshake;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 
 import com.aliyun.gmsse.CipherSuite;
 import com.aliyun.gmsse.CompressionMethod;
@@ -20,8 +16,11 @@ public class ServerHello extends Handshake.Body {
     private CompressionMethod compression;
     private ProtocolVersion version;
 
+    public ServerHello() {
+    }
+
     public ServerHello(ProtocolVersion version, byte[] random, byte[] sessionId, CipherSuite suite,
-            CompressionMethod compression) {
+                       CompressionMethod compression) {
         this.version = version;
         this.random = random;
         this.sessionId = sessionId;
@@ -76,15 +75,52 @@ public class ServerHello extends Handshake.Body {
         return out.toByteArray();
     }
 
+    @Override
+    public void print(PrintStream out) {
+
+    }
+
     public byte[] getRandom() {
         return random;
+    }
+
+    public void setRandom(byte[] random) {
+        this.random = random;
+    }
+
+    public void setSessionId(byte[] sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public CipherSuite getSuite() {
+        return suite;
+    }
+
+    public void setSuite(CipherSuite suite) {
+        this.suite = suite;
+    }
+
+    public CompressionMethod getCompression() {
+        return compression;
+    }
+
+    public void setCompression(CompressionMethod compression) {
+        this.compression = compression;
+    }
+
+    public ProtocolVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(ProtocolVersion version) {
+        this.version = version;
     }
 
     @Override
     public String toString() {
         StringWriter str = new StringWriter();
         PrintWriter out = new PrintWriter(str);
-        out.println("struct {");
+        out.println("  struct {");
         out.println("  version = " + version + ";");
         out.println("  random = " + Util.hexString(random) + ";");
         out.println("  sessionId = " + Util.hexString(sessionId) + ";");

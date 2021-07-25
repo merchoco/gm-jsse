@@ -1,13 +1,8 @@
 package com.aliyun.gmsse.handshake;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,7 +22,7 @@ public class ClientHello extends Handshake.Body {
     private ProtocolVersion version;
 
     public ClientHello(ProtocolVersion version, ClientRandom random, byte[] sessionId, List<CipherSuite> suites,
-            List<CompressionMethod> compressions) {
+                       List<CompressionMethod> compressions) {
         this.version = version;
         this.random = random;
         this.sessionId = sessionId;
@@ -52,13 +47,13 @@ public class ClientHello extends Handshake.Body {
         }
         out.println("  sessionId = " + Util.hexString(sessionId) + ";");
         out.println("  cipherSuites = {");
-        for (Iterator<CipherSuite> i = suites.iterator(); i.hasNext();) {
+        for (Iterator<CipherSuite> i = suites.iterator(); i.hasNext(); ) {
             out.print("    ");
             out.println(i.next().getName());
         }
         out.println("  };");
         out.print("  compressionMethods = { ");
-        for (Iterator<CompressionMethod> i = compressions.iterator(); i.hasNext();) {
+        for (Iterator<CompressionMethod> i = compressions.iterator(); i.hasNext(); ) {
             out.print(i.next().toString());
             if (i.hasNext()) {
                 out.print(", ");
@@ -98,29 +93,108 @@ public class ClientHello extends Handshake.Body {
     }
 
     public static Body read(InputStream input) throws IOException {
-        int sessionIdLength = input.read() & 0xFF;
-        byte[] sessionId = new byte[sessionIdLength];
-        input.read(sessionId, 0, sessionIdLength);
-        int gmtUnixTime =  (input.read() << 24 & 0xFF) + (input.read() << 16 & 0xFF) + (input.read() << 8 & 0xFF) + input.read() & 0xFF;
-        byte[] randomBytes = new byte[28];
-        input.read(randomBytes, 0, 28);
+        //读TLS协议版本
+
+        ProtocolVersion version = ProtocolVersion.getInstance(
+                input.read() & 0xff, input.read() & 0xff);
+        if (version.compareTo(ProtocolVersion.NTLS_1_1) != 0) {
+
+            //客户端clientHello不合法
+        }
+        //读随机数
+        byte[] randomBytes = new byte[32];
+        input.read(randomBytes, 0, 32);
+        int gmtUnixTime = randomBytes[0] << 24;
+        gmtUnixTime += randomBytes[1] << 16;
+        gmtUnixTime += randomBytes[2] << 8;
+        gmtUnixTime += randomBytes[3];
+        System.out.println("time  :" + gmtUnixTime);
         ClientRandom random = new ClientRandom(gmtUnixTime, randomBytes);
 
-        int suiteSize =  (input.read() << 16 & 0xFF) + (input.read() << 8 & 0xFF) + input.read() & 0xFF;
+        //读sessionId
+        int sessionIdLen= input.read() & 0xff;
+        byte[] sessionId = new byte[sessionIdLen];
+        input.read(sessionId, 0, sessionIdLen);
+
+         //读size
+          int suiteSize=(input.read() & 0xFF)  << 8 | (input.read() & 0xFF );
+          byte [] suiteBytes =new byte[suiteSize];
+          input.read(suiteBytes, 0, suiteSize);
+
         List<CipherSuite> suites = new ArrayList<CipherSuite>();
-        for (int i = 0; i < suiteSize / 4; i++) {
-            int id1 = input.read();
-            int id2 = input.read();
-            int size = input.read() << 8 & 0xFF + input.read();
-            suites.add(new CipherSuite(null, null, null, null, size, id1, id2, null, ProtocolVersion.NTLS_1_1));
+        //每个密码套件2个字节
+        for(int i= 0; i < suiteSize; i += 2) {
+            byte id1 = suiteBytes[i];
+            byte id2 = suiteBytes[i+1];
+            CipherSuite suite = CipherSuite.values(id1, id2);
+            suites.add(suite);
         }
 
         int compressionLength = input.read();
+
         List<CompressionMethod> compressions = new ArrayList<CompressionMethod>();
         for (int i = 0; i < compressionLength; i++) {
             compressions.add(CompressionMethod.getInstance(input.read() & 0xFF));
         }
-        ProtocolVersion version = ProtocolVersion.NTLS_1_1;
         return new ClientHello(version, random, sessionId, suites, compressions);
+    }
+
+    public List<CipherSuite> getSuites() {
+        return suites;
+    }
+
+    public void setSuites(List<CipherSuite> suites) {
+        this.suites = suites;
+    }
+
+    public void print(PrintStream s) {
+
+        System.out.println("****");
+        System.out.println("RandomCookie : ");
+        random.print(s);
+        System.out.println("CipherSuite : ");
+        for (CipherSuite suite : suites) {
+            System.out.println("suiteName : " + suite.getName());
+            System.out.println("version:  " + version);
+        }
+
+
+    }
+
+
+    public ClientRandom getRandom() {
+        return random;
+    }
+
+    public void setRandom(ClientRandom random) {
+        this.random = random;
+    }
+
+    public byte[] getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(byte[] sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public List<CompressionMethod> getCompressions() {
+        return compressions;
+    }
+
+    public void setCompressions(List<CompressionMethod> compressions) {
+        this.compressions = compressions;
+    }
+
+    public ProtocolVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(ProtocolVersion version) {
+        this.version = version;
+    }
+
+    public void clientHello(Body body) {
+        //
     }
 }

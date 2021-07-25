@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.aliyun.gmsse.ProtocolVersion;
-import com.aliyun.gmsse.Record;
 import com.aliyun.gmsse.RecordStream;
-import com.aliyun.gmsse.Record.ContentType;
+import com.aliyun.gmsse.record.Record.ContentType;
 
 public class AppDataOutputStream extends OutputStream {
 

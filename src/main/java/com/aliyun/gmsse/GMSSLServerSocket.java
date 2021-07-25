@@ -147,7 +147,7 @@ public final class GMSSLServerSocket extends SSLServerSocket {
     }
 
     public Socket accept() throws IOException {
-        GMSSLSocket gmsslSocket = new GMSSLSocket("127.0.0.1",9088);
+        GMSSLSocket gmsslSocket = new GMSSLSocket(true);
         this.implAccept(gmsslSocket);
         gmsslSocket.doneConnect();
         return gmsslSocket;

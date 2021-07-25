@@ -46,6 +46,11 @@ public class ClientKeyExchange extends Handshake.Body {
     }
 
     @Override
+    public void print(PrintStream out) {
+
+    }
+
+    @Override
     public String toString() {
         StringWriter str = new StringWriter();
         PrintWriter out = new PrintWriter(str);

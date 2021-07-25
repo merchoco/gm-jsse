@@ -1,6 +1,6 @@
 package com.aliyun.gmsse;
 
-import com.aliyun.gmsse.Record.ContentType;
+import com.aliyun.gmsse.record.Record.ContentType;
 import com.aliyun.gmsse.crypto.Crypto;
 import com.aliyun.gmsse.handshake.Certificate;
 import com.aliyun.gmsse.handshake.ClientHello;
@@ -8,11 +8,7 @@ import com.aliyun.gmsse.handshake.ClientKeyExchange;
 import com.aliyun.gmsse.handshake.Finished;
 import com.aliyun.gmsse.handshake.ServerHello;
 import com.aliyun.gmsse.handshake.ServerKeyExchange;
-import com.aliyun.gmsse.record.Alert;
-import com.aliyun.gmsse.record.AppDataInputStream;
-import com.aliyun.gmsse.record.AppDataOutputStream;
-import com.aliyun.gmsse.record.ChangeCipherSpec;
-import com.aliyun.gmsse.record.Handshake;
+import com.aliyun.gmsse.record.*;
 
 import org.bouncycastle.crypto.engines.SM4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -53,6 +49,8 @@ public class GMSSLSocket extends SSLSocket {
         supportedPtrotocols.add(ProtocolVersion.NTLS_1_1);
     }
 
+     private  boolean isServer;
+
     GMSSLSession session;
     BufferedOutputStream handshakeOut;
     int port;
@@ -70,10 +68,17 @@ public class GMSSLSocket extends SSLSocket {
 
     private SecurityParameters securityParameters = new SecurityParameters();
     List<Handshake> handshakes = new ArrayList<Handshake>();
+    private int connectionState;
+    private Handshake handshaker;
+    private boolean handshakeDone =false;
 
     public GMSSLSocket(String host, int port) throws IOException {
         super(host, port);
         remoteHost = host;
+        initialize();
+    }
+    public GMSSLSocket(boolean isServer) throws IOException {
+        this.isServer=isServer;
         initialize();
     }
 
@@ -264,8 +269,15 @@ public class GMSSLSocket extends SSLSocket {
     }
 
     private void receiveFinished() throws IOException {
+        /**
+         * 记录层协议阅读
+         */
         Record rc = recordStream.read(true);
-        Handshake hs = Handshake.read(new ByteArrayInputStream(rc.fragment));
+        /**
+         * 获取记录层中分片Fragmentation
+         * 进行握手协议解析
+         */
+        Handshake hs = handshaker.read(new ByteArrayInputStream(rc.fragment));
         Finished finished = (Finished) hs.body;
         Finished serverFinished = new Finished(securityParameters.masterSecret, "server finished", handshakes);
         if (!Arrays.equals(finished.getBytes(), serverFinished.getBytes())) {
@@ -368,13 +380,13 @@ public class GMSSLSocket extends SSLSocket {
 
     private void receiveServerHelloDone() throws IOException {
         Record rc = recordStream.read();
-        Handshake shdf = Handshake.read(new ByteArrayInputStream(rc.fragment));
+        Handshake shdf = handshaker.read(new ByteArrayInputStream(rc.fragment));
         handshakes.add(shdf);
     }
 
     private void receiveServerKeyExchange() throws IOException {
         Record rc = recordStream.read();
-        Handshake skef = Handshake.read(new ByteArrayInputStream(rc.fragment));
+        Handshake skef = handshaker.read(new ByteArrayInputStream(rc.fragment));
         ServerKeyExchange ske = (ServerKeyExchange) skef.body;
         // signature cert
         X509Certificate signCert = session.peerCerts[0];
@@ -400,7 +412,7 @@ public class GMSSLSocket extends SSLSocket {
 
     private void receiveServerCertificate() throws IOException {
         Record rc = recordStream.read();
-        Handshake cf = Handshake.read(new ByteArrayInputStream(rc.fragment));
+        Handshake cf = handshaker.read(new ByteArrayInputStream(rc.fragment));
         Certificate cert = (Certificate) cf.body;
         X509Certificate[] peerCerts = cert.getCertificates();
         try {
@@ -420,7 +432,7 @@ public class GMSSLSocket extends SSLSocket {
             throw new AlertException(alert, true);
         }
 
-        Handshake hsf = Handshake.read(new ByteArrayInputStream(rc.fragment));
+        Handshake hsf = handshaker.read(new ByteArrayInputStream(rc.fragment));
         ServerHello sh = (ServerHello) hsf.body;
         sh.getCompressionMethod();
         // TODO: process the compresion method
@@ -476,7 +488,7 @@ public class GMSSLSocket extends SSLSocket {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return new AppDataInputStream(recordStream);
+        return new AppDataInputStream(recordStream,handshaker);
     }
 
     public void doneConnect() {
@@ -487,11 +499,49 @@ public class GMSSLSocket extends SSLSocket {
             this.socketIn = this.self.getInputStream();
             this.socketOut = this.self.getOutputStream();
         }*/
-
         try {
-            this.startHandshake();
+            this.initHandshaker();
+            ensureConnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    private void initHandshaker() throws IOException {
+
+        switch(this.connectionState) {
+            case 0:
+            case 2:
+                if (this.connectionState == 0) {
+                    this.connectionState = 1;
+                } else {
+                    this.connectionState = 3;
+                }
+
+                if (this.isServer) {
+                    this.handshaker = new ServerHandshaker( this);
+                } else {
+                    startHandshake();
+                    //this.handshaker = new ClientHandshaker(this, this.sslContext, this.enabledProtocols, this.protocolVersion, this.connectionState == 1, this.secureRenegotiation, this.clientVerifyData, this.serverVerifyData);
+                }
+                //this.handshaker.setEnabledCipherSuites(this.enabledCipherSuites);
+               // this.handshaker.setEnableSessionCreation(this.enableSessionCreation);
+                return;
+            case 1:
+            case 3:
+                return;
+            default:
+                throw new IllegalStateException("Internal error");
+        }
+
+    }
+
+    public RecordStream getRecordStream() {
+        return recordStream;
+    }
+
+    public void setRecordStream(RecordStream recordStream) {
+        this.recordStream = recordStream;
     }
 }

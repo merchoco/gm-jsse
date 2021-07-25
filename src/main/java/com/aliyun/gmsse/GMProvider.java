@@ -9,7 +9,7 @@ public class GMProvider extends Provider {
         put("SSLContext.TLS", GMSSLContextSpi.class.getName());
         put("KeyManagerFactory.X509",   GMX509KeyManagerFactory.class.getName());
         put("TrustManagerFactory.X509", GMX509TrustManagerFactory.class.getName());
-        this.put("KeyStore.PKCS12", "org.bc.jce.provider.JDKPKCS12KeyStore$BCPKCS12KeyStore");
+        this.put("KeyStore.PKCS12", "org.bouncycastle.jcajce.provider.keystore.pkcs12.PKCS12KeyStoreSpi$BCPKCS12KeyStore");
     }
 
     /**

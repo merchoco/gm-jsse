@@ -1,5 +1,6 @@
 package com.aliyun.gmsse;
 
+import com.aliyun.gmsse.record.Record;
 import org.bouncycastle.crypto.engines.SM4Engine;
 import org.junit.Assert;
 import org.junit.Test;

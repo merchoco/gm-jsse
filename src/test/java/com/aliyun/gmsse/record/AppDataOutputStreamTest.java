@@ -1,7 +1,6 @@
 package com.aliyun.gmsse.record;
 
 import com.aliyun.gmsse.ProtocolVersion;
-import com.aliyun.gmsse.Record;
 import com.aliyun.gmsse.RecordStream;
 import org.junit.Assert;
 import org.junit.Test;

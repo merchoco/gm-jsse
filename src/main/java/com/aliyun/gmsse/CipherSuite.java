@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 final public class CipherSuite {
     private static final HashMap<String, CipherSuite> namesToSuites = new HashMap<String, CipherSuite>();
+    private static final HashMap<Integer, CipherSuite> idsToSuites = new HashMap<Integer, CipherSuite>();
 
     // ECC-SM2-WITH-SM4-SM3 0x0300  E0 11
     public static final CipherSuite NTLS_SM2_WITH_SM4_SM3 =
@@ -40,6 +41,11 @@ final public class CipherSuite {
         this.keyLength = keyLength;
         this.id = new byte[] { (byte) id1, (byte) id2 };
         namesToSuites.put(name, this);
+        id1 &= 0XFF;
+        id2 &= 0XFF;
+        int ids = id1 << 8 | id2;
+        idsToSuites.put(ids,this);
+
     }
 
     public String getName() {
@@ -79,6 +85,12 @@ final public class CipherSuite {
             }
         }
         return null;
+    }
+    public static CipherSuite values(int id1, int id2) {
+        id1 &= 0XFF;
+        id2 &= 0XFF;
+        int ids = id1 << 8 | id2;
+        return  idsToSuites.get(ids);
     }
 
     public String getKeyExchange() {

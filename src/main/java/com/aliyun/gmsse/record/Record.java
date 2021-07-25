@@ -1,8 +1,17 @@
-package com.aliyun.gmsse;
+package com.aliyun.gmsse.record;
 
+import com.aliyun.gmsse.ProtocolVersion;
+import com.aliyun.gmsse.Util;
+
+import java.io.PrintStream;
+import java.util.Arrays;
+
+/**
+ * 记录层协议
+ */
 public class Record {
-    ContentType contentType;
-    ProtocolVersion version;
+    public ContentType contentType;
+    public ProtocolVersion version;
     public byte[] fragment;
 
     public Record(ContentType contentType, ProtocolVersion version, byte[] fragment) {
@@ -52,5 +61,14 @@ public class Record {
         public int getValue() {
             return value;
         }
+    }
+
+    public void print(PrintStream s) {
+        s.println("****");
+        s.println("type: " + contentType.value + " [" + contentType.name + "]");
+        s.println("version: " + version.getMajor());
+        s.println("fragment: " + Arrays.toString(fragment));
+        s.println("fragmentHex: " + Util.hexString(fragment));
+        s.println("****");
     }
 }

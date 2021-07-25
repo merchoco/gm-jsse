@@ -61,7 +61,7 @@ public final class SunX509KeyManagerImpl extends X509ExtendedKeyManager {
     public SunX509KeyManagerImpl() {
     }
 
-   public SunX509KeyManagerImpl(KeyStore ks, char[] password) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException{
+    public SunX509KeyManagerImpl(KeyStore ks, char[] password) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
         if (ks == null) {
             return;
         }
@@ -91,7 +91,7 @@ public final class SunX509KeyManagerImpl extends X509ExtendedKeyManager {
 
             FileInputStream in1 = null;
             credentialsMap.put(alias, cred);
-            if (debug != null && Debug.isOn("keymanager")) {
+            if (debug != null && sun.security.util.Debug.isOn("keymanager")) {
                 System.out.println("***");
                 System.out.println("found key for : " + alias);
                 for (int i = 0; i < certs.length; i++) {
@@ -101,18 +101,6 @@ public final class SunX509KeyManagerImpl extends X509ExtendedKeyManager {
                 System.out.println("***");
             }
         }
-
-        try {
-           /* String sig="sig";
-            String enc="enc";
-            X509Credentials certM = getCertM("D:\\360安全浏览器下载\\sm2.mc\\gm.sig.pfx",sig);
-            X509Credentials certM2 = getCertM("D:\\360安全浏览器下载\\sm2.mc\\gm.enc.pfx",enc);
-            credentialsMap.put(sig, certM);
-            credentialsMap.put(enc, certM2);*/
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
 

@@ -63,16 +63,21 @@
             <version>1.64</version>
         </dependency>
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.64</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
-         <dependency>
+  <!--       <dependency>
                 <groupId>com.gm</groupId>
                 <artifactId>jce</artifactId>
                 <version>1.0.0</version>
-            </dependency>
+            </dependency>-->
   <!--         <dependency>
                 <groupId>com.gm</groupId>
                 <artifactId>gmjsse</artifactId>

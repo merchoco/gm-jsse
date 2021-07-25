@@ -1,5 +1,7 @@
 package com.aliyun.gmsse;
 
+import org.omg.SendingContext.RunTime;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,8 +35,10 @@ final public class ProtocolVersion implements Comparable {
                     return NTLS_1_1;
             }
         }
-        return new ProtocolVersion(major, minor, "Unknow Protocol");
+        throw  new RuntimeException("Unknow Protocol");
     }
+
+
 
     byte[] getEncoded() {
         return new byte[] { (byte) major, (byte) minor };

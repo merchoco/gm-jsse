@@ -31,13 +31,17 @@ public class ClientRandom {
         generator.nextBytes(randomBytes);
     }
 
-    public byte[] getBytes() throws IOException {
+    public byte[] getBytes()  {
         ByteArrayOutputStream ba = new ByteArrayOutputStream();
-        ba.write((gmtUnixTime >>> 24) & 0xFF);
-        ba.write((gmtUnixTime >>> 16) & 0xFF);
-        ba.write((gmtUnixTime >>> 8) & 0xFF);
-        ba.write( gmtUnixTime & 0xFF);
-        ba.write(randomBytes);
+        ba.write((byte) ((gmtUnixTime >> 24) & 0xFF));
+        ba.write((byte) ((gmtUnixTime >> 16) & 0xFF));
+        ba.write((byte) ((gmtUnixTime >> 8) & 0xFF));
+        ba.write((byte) (gmtUnixTime & 0xFF));
+        try {
+            ba.write(randomBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return ba.toByteArray();
     }
 
@@ -59,11 +63,7 @@ public class ClientRandom {
             if (i != 4) {
                 s.print(", ");
             }
-            try {
                 s.print(this.getBytes()[i] & 0x0ff);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         s.println(" }");
     }

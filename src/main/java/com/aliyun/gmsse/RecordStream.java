@@ -10,7 +10,8 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLException;
 
-import com.aliyun.gmsse.Record.ContentType;
+import com.aliyun.gmsse.record.Record;
+import com.aliyun.gmsse.record.Record.ContentType;
 import com.aliyun.gmsse.record.Alert;
 
 import org.bouncycastle.crypto.digests.SM3Digest;
@@ -88,6 +89,13 @@ public class RecordStream {
         return read(false);
     }
 
+    /**
+     * 解析记录层协议
+     * type(1), version(2), length(2), fragment(length)
+     * @param encrpted
+     * @return
+     * @throws IOException
+     */
     public Record read(boolean encrpted) throws IOException {
         // type(1), version(2), length(2), fragment(length)
         int type = input.read();

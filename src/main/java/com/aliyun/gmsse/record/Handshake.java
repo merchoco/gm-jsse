@@ -3,7 +3,12 @@ package com.aliyun.gmsse.record;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.List;
 
+import com.aliyun.gmsse.CipherSuite;
+import com.aliyun.gmsse.GMSSLSocket;
+import com.aliyun.gmsse.ProtocolVersion;
 import com.aliyun.gmsse.handshake.Certificate;
 import com.aliyun.gmsse.handshake.CertificateRequest;
 import com.aliyun.gmsse.handshake.CertificateVerify;
@@ -14,13 +19,40 @@ import com.aliyun.gmsse.handshake.ServerHello;
 import com.aliyun.gmsse.handshake.ServerHelloDone;
 import com.aliyun.gmsse.handshake.ServerKeyExchange;
 
+/**
+ * 握手
+ */
 public class Handshake implements RecordFragment {
+    static GMSSLSocket conn = null;
     public Type type;
     public Body body;
+    private int status = 0;
+
+    public Handshake() {
+    }
 
     public Handshake(Type type, Body body) {
         this.type = type;
         this.body = body;
+    }
+
+    public Handshake(GMSSLSocket gmsslSocket) {
+        this.conn=gmsslSocket;
+    }
+
+    public void startHandshake() {
+
+    }
+
+    public boolean isDone() {
+        return status ==1 ;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void startHandshake(Record record) {
     }
 
     public static class Type {
@@ -73,16 +105,26 @@ public class Handshake implements RecordFragment {
 
     public static abstract class Body {
         public abstract byte[] getBytes() throws IOException;
+
+        public  abstract void print(PrintStream out);
+
+       
     }
 
-    public static Handshake read(InputStream input) throws IOException {
+    
+    public  Handshake  read(InputStream input) throws IOException {
         // type
         int type = input.read() & 0xFF;
+        //
         int msgLength = (input.read() & 0xFF) << 16 | (input.read() & 0xFF) << 8 | (input.read() & 0xFF);
+       //
         Handshake.Body body = null;
         switch (type) {
             case 0x01:
                 body = ClientHello.read(input);
+                System.out.println("++++clientHello: ");
+                body.print(System.out);
+                client((ClientHello) body);;
                 break;
             case 0x02:
                 body = ServerHello.read(input);
@@ -113,6 +155,18 @@ public class Handshake implements RecordFragment {
         }
         return new Handshake(Type.getInstance(type), body);
     }
+
+    public void client(ClientHello body) {
+        //serverHello
+       // List<CipherSuite> suites = body.getSuites();
+
+      //  ServerHello serverHello = new ServerHello();
+      //  serverHello.setVersion(ProtocolVersion.NTLS_1_1);
+        //serverHello.setRandom(new R);
+        //serverHello.setSuite();
+
+    }
+
 
     public byte[] getBytes() throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();

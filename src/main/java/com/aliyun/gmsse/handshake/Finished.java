@@ -1,10 +1,6 @@
 package com.aliyun.gmsse.handshake;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
@@ -40,6 +36,11 @@ public class Finished extends Handshake.Body {
     @Override
     public byte[] getBytes() throws IOException {
         return verifyData;
+    }
+
+    @Override
+    public void print(PrintStream out) {
+
     }
 
     public static Body read(InputStream input, int msgLength) throws IOException {

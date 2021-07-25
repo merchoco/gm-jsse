@@ -4,6 +4,7 @@ import com.aliyun.gmsse.crypto.Crypto;
 import com.aliyun.gmsse.handshake.*;
 import com.aliyun.gmsse.record.AppDataOutputStream;
 import com.aliyun.gmsse.record.Handshake;
+import com.aliyun.gmsse.record.Record;
 import org.bouncycastle.crypto.engines.SM4Engine;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.junit.Assert;
@@ -253,7 +254,7 @@ public class GMSSLSocketTest {
         Mockito.when(serverKeyExchange.verify(Mockito.any(PublicKey.class), Mockito.any(byte[].class),
                 Mockito.any(byte[].class), Mockito.any(X509Certificate.class))).thenReturn(true);
         Handshake skef = new Handshake(null, serverKeyExchange);
-        PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
+       // PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
         X509Certificate first = Mockito.mock(X509Certificate.class);
         PowerMockito.when(first.getPublicKey()).thenReturn(Mockito.mock(PublicKey.class));
         X509Certificate two = Mockito.mock(X509Certificate.class);
@@ -283,7 +284,7 @@ public class GMSSLSocketTest {
         Mockito.when(serverKeyExchange.verify(Mockito.any(PublicKey.class), Mockito.any(byte[].class),
                 Mockito.any(byte[].class), Mockito.any(X509Certificate.class))).thenThrow(new InvalidKeyException("test"));
         skef = new Handshake(null, serverKeyExchange);
-        PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
+        //PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
 
         try {
             receiveServerKeyExchange.invoke(gmsslSocket);
@@ -296,7 +297,7 @@ public class GMSSLSocketTest {
         Mockito.when(serverKeyExchange.verify(Mockito.any(PublicKey.class), Mockito.any(byte[].class),
                 Mockito.any(byte[].class), Mockito.any(X509Certificate.class))).thenReturn(false);
         skef = new Handshake(null, serverKeyExchange);
-        PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
+     //   PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(skef);
 
         try {
             receiveServerKeyExchange.invoke(gmsslSocket);
@@ -370,7 +371,7 @@ public class GMSSLSocketTest {
         Finished finished = Mockito.mock(Finished.class);
         Mockito.when(finished.getBytes()).thenReturn(new byte[]{1});
         Handshake handshake = new Handshake(null, finished);
-        PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(handshake);
+        //PowerMockito.when(Handshake.read(Mockito.any(InputStream.class))).thenReturn(handshake);
 
         byte[] keyBlock = new byte[2];
         PowerMockito.mockStatic(Crypto.class);
